@@ -1,0 +1,50 @@
+/*
+01_Creation_BDD_Tables.sql
+Création de la base de données WSP_DATABASE et des tables PROFIL, SALARIE, TAB_CV
+*/
+
+IF DB_ID('WSP_DATABASE') IS NULL
+BEGIN
+    CREATE DATABASE WSP_DATABASE;
+END;
+USE WSP_DATABASE;
+
+-- Supprimez d'abord la table qui dépend d'autres tables
+IF OBJECT_ID('TAB_CV', 'U') IS NOT NULL
+    DROP TABLE TAB_CV;
+
+-- Supprimez ensuite la table qui est référencée par une autre
+IF OBJECT_ID('SALARIE', 'U') IS NOT NULL
+    DROP TABLE SALARIE;
+
+-- Enfin, supprimez la table référencée
+IF OBJECT_ID('PROFIL', 'U') IS NOT NULL
+    DROP TABLE PROFIL;
+
+-- Création de la table PROFIL
+CREATE TABLE PROFIL (
+    ID_PROFIL INT PRIMARY KEY,
+    LIBELLE_PROFIL VARCHAR(100)
+);
+
+-- Création de la table SALARIE (clé étrangère vers PROFIL)
+CREATE TABLE SALARIE (
+    MATRICULE VARCHAR(20) PRIMARY KEY,
+    ID_PROFIL INT,
+    NOM VARCHAR(100),
+    PRENOM VARCHAR(100),
+    DATE_NAISSANCE DATE,
+    DATE_DIPLOME DATE,
+    DATE_ENTREE DATE,
+    CONSTRAINT FK_SALARIE_PROFIL FOREIGN KEY (ID_PROFIL) REFERENCES PROFIL(ID_PROFIL)
+);
+
+-- Création de la table TAB_CV (clé étrangère vers SALARIE)
+CREATE TABLE TAB_CV (
+    ID_CV INT IDENTITY(1,1) PRIMARY KEY,
+    MATRICULE VARCHAR(20),
+    DESC_CV VARCHAR(5000),
+    MOTS_CLEFS VARCHAR(1000),
+    CV IMAGE,
+    CONSTRAINT FK_TAB_CV_SALARIE FOREIGN KEY (MATRICULE) REFERENCES SALARIE(MATRICULE)
+);
